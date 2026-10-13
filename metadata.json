@@ -1,0 +1,8 @@
+{
+  "name": "Remix Remix    IATF 16949-12-05-1405-ORGINAL",
+  "description": "A comprehensive expert guide for IATF 16949:2016 requirements, interpretations, and required documentation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

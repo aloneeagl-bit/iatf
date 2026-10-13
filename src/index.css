@@ -1,0 +1,69 @@
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;300;400;500;700;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Vazirmatn", ui-sans-serif, system-ui;
+  --color-dark-bg: #0A0A0B;
+  --color-dark-sidebar: #0F0F11;
+  --color-dark-surface: #121214;
+  --color-dark-border: #2A2A2D;
+  --color-accent-amber: #f59e0b;
+}
+
+body {
+  font-feature-settings: "ss01", "ss02";
+  background-color: var(--color-dark-bg);
+  color: #E0E0E0;
+}
+
+/* Custom always-visible scrollbar styling for tables and panels */
+::-webkit-scrollbar {
+  width: 10px !important;
+  height: 10px !important;
+  display: block !important;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f0f11 !important;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3A3A3F !important;
+  border: 2px solid #0f0f11 !important;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #f59e0b !important;
+}
+
+/* Firefox compatibility */
+* {
+  scrollbar-width: thin !important;
+  scrollbar-color: #3A3A3F #0f0f11 !important;
+}
+
+@utility animate-fade-in {
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@utility animate-beautiblink {
+  animation: beautiblink 1.5s infinite ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95) translateY(4px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes beautiblink {
+  0%, 100% {
+    opacity: 0.4;
+    box-shadow: 0 0 2px rgba(239, 68, 68, 0.2);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.9), 0 0 5px rgba(239, 68, 68, 0.6);
+  }
+}

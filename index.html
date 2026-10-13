@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Prevent automatic HMR / Live-reload page refreshes during development -->
+    <script>
+      // Global error shield to prevent cross-origin script errors and iframe tracking noise
+      window.onerror = function(message, source, lineno, colno, error) {
+        const msg = String(message || '');
+        if (
+          msg.includes('Script error') ||
+          msg.includes('ResizeObserver') ||
+          !source ||
+          source.includes('extension') ||
+          lineno === 0
+        ) {
+          console.info('[Error Shield] Prevented benign/cross-origin or extension error propagation:', message);
+          return true; // Suppress error
+        }
+      };
+
+      window.addEventListener('error', function(event) {
+        const msg = String(event.message || '');
+        const filename = event.filename || '';
+        if (
+          msg.includes('Script error') ||
+          msg.includes('ResizeObserver') ||
+          !filename ||
+          filename.includes('extension') ||
+          event.lineno === 0
+        ) {
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+        }
+      }, true);
+
+      window.addEventListener('unhandledrejection', function(event) {
+        const reason = event.reason;
+        const msg = String(reason?.message || reason || '');
+        if (
+          msg.includes('Script error') ||
+          msg.includes('ResizeObserver') ||
+          msg.includes('extension')
+        ) {
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+        }
+      }, true);
+
+      (function() {
+        const OriginalWebSocket = window.WebSocket;
+        if (OriginalWebSocket) {
+          window.WebSocket = function(url, protocols) {
+            const ws = arguments.length > 1 && protocols !== undefined
+              ? new OriginalWebSocket(url, protocols)
+              : new OriginalWebSocket(url);
+            
+            // Detect if this is a Vite WS connection
+            const isViteWS = typeof url === 'string' && (
+              url.includes('vite') || 
+              url.includes('localhost') || 
+              url.includes('127.0.0.1') || 
+              url.includes('0.0.0.0') ||
+              url.includes(window.location.host)
+            );
+            
+            if (isViteWS) {
+              console.info('[Vite Interceptor] Intercepted Vite WebSocket connection:', url);
+              const originalAddEventListener = ws.addEventListener;
+              
+              if (originalAddEventListener) {
+                ws.addEventListener = function(type, listener, options) {
+                  if (type === 'message') {
+                    const customMessageListener = function(event) {
+                      try {
+                        const data = JSON.parse(event.data);
+                        if (data && (data.type === 'full-reload' || data.type === 'reload')) {
+                          console.info('[Vite Interceptor] Blocked automatic page reload signal:', data);
+                          return; // Discard reload signal
+                        }
+                      } catch (e) {}
+                      try {
+                        if (typeof listener === 'function') {
+                          return listener.apply(this, arguments);
+                        } else if (listener && typeof listener.handleEvent === 'function') {
+                          return listener.handleEvent(event);
+                        }
+                      } catch (e) {
+                        console.error('[Vite Interceptor] Error executing message listener:', e);
+                      }
+                    };
+                    return originalAddEventListener.call(ws, type, customMessageListener, options);
+                  }
+                  
+                  if (type === 'close') {
+                    console.info('[Vite Interceptor] Blocked CLOSE event listener on Vite WebSocket to prevent reconnect-reload loop');
+                    return; // Discard close event subscription
+                  }
+                  
+                  return originalAddEventListener.apply(ws, arguments);
+                };
+              }
+              
+              // Handle optional direct onmessage and onclose property assignments
+              let onMessageValue = null;
+              Object.defineProperty(ws, 'onmessage', {
+                get() { return onMessageValue; },
+                set(fn) {
+                  onMessageValue = fn;
+                  if (fn) {
+                    ws.addEventListener('message', fn);
+                  }
+                },
+                configurable: true
+              });
+
+              let onCloseValue = null;
+              Object.defineProperty(ws, 'onclose', {
+                get() { return onCloseValue; },
+                set(fn) {
+                  onCloseValue = fn;
+                  console.info('[Vite Interceptor] Blocked direct onclose property assignment to avoid reload');
+                },
+                configurable: true
+              });
+            }
+            return ws;
+          };
+          window.WebSocket.prototype = OriginalWebSocket.prototype;
+          window.WebSocket.CONNECTING = OriginalWebSocket.CONNECTING;
+          window.WebSocket.OPEN = OriginalWebSocket.OPEN;
+          window.WebSocket.CLOSING = OriginalWebSocket.CLOSING;
+          window.WebSocket.CLOSED = OriginalWebSocket.CLOSED;
+        }
+      })();
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Remix Remix    IATF 16949-12-05-1405-ORGINAL</title>
+    <meta name="description" content="A comprehensive expert guide for IATF 16949:2016 requirements, interpretations, and required documentation." />
+    <meta property="og:title" content="Remix Remix    IATF 16949-12-05-1405-ORGINAL" />
+    <meta property="og:description" content="A comprehensive expert guide for IATF 16949:2016 requirements, interpretations, and required documentation." />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
